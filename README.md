@@ -1,18 +1,20 @@
-# NeurIPS 2026 — 의료 QA·RAG·에이전트·LLM 논문 정리
+# AI 학회 논문 동향 — NeurIPS·ICML·ICLR·ACL·EMNLP
 
-NeurIPS 2026 채택 논문 9,094편을 분야·주제로 나누고, 의료 QA·의료 RAG·의료 에이전트·의료 LLM·RAG·on-policy/self-distillation 논문을 골라 정리했다.
+NeurIPS·ICML·ICLR·ACL·EMNLP 2025–2026 main 논문에서 키워드를 고르면 학회·연도별 편수와 그 연구를 낸 기관을 보여 주는 동향 페이지가 있다.
+그리고 NeurIPS 2026 채택 논문 9,094편을 분야·주제로 나누고, 의료 QA·의료 RAG·의료 에이전트·의료 LLM·RAG·on-policy/self-distillation 논문을 골라 정리했다.
 
 ## 웹 페이지
 
-휴대폰에서도 열린다. 다섯 페이지는 서로 독립적이다.
+휴대폰에서도 열린다. 여섯 페이지는 서로 독립적이다.
 
 | 페이지 | 내용 |
 |---|---|
-| [관심 분야 리포트](https://chpark-ml.github.io/neurips2026-medical-llm-rag/interests.html) | 학회 전체 → 분야 → 트렌드 → 의료·RAG 순서의 분석, 관심 분야 논문 목록, 하이라이트, 연구 제안 |
-| [논문 탐색기](https://chpark-ml.github.io/neurips2026-medical-llm-rag/explorer.html) | 전체 9,094편을 분야·세부 주제(212개)·키워드·발표 형식으로 걸러 보기 |
-| [Medical QA 연구 지도](https://chpark-ml.github.io/neurips2026-medical-llm-rag/medical_qa.html) | Medical QA 논문을 갈래로 나눈 연구 흐름 |
-| [On-policy·Self-distillation 연구 지도](https://chpark-ml.github.io/neurips2026-medical-llm-rag/opsd.html) | OPD·OPSD 논문을 갈래로 나눈 연구 흐름 |
-| [데이터셋 트랙 의료 논문](https://chpark-ml.github.io/neurips2026-medical-llm-rag/med_datasets.html) | Evaluations & Datasets 트랙의 의료 논문 60편을 데이터·평가 종류별 갈래로 정리 |
+| [학회 연구 동향](https://chpark-ml.github.io/ai-paper-trends/trends.html) | 다섯 학회 2025–2026 main 논문에서 키워드별 학회·연도 편수와 기관 순위 |
+| [관심 분야 리포트](https://chpark-ml.github.io/ai-paper-trends/interests.html) | 학회 전체 → 분야 → 트렌드 → 의료·RAG 순서의 분석, 관심 분야 논문 목록, 하이라이트, 연구 제안 |
+| [논문 탐색기](https://chpark-ml.github.io/ai-paper-trends/explorer.html) | 전체 9,094편을 분야·세부 주제(212개)·키워드·발표 형식으로 걸러 보기 |
+| [Medical QA 연구 지도](https://chpark-ml.github.io/ai-paper-trends/medical_qa.html) | Medical QA 논문을 갈래로 나눈 연구 흐름 |
+| [On-policy·Self-distillation 연구 지도](https://chpark-ml.github.io/ai-paper-trends/opsd.html) | OPD·OPSD 논문을 갈래로 나눈 연구 흐름 |
+| [데이터셋 트랙 의료 논문](https://chpark-ml.github.io/ai-paper-trends/med_datasets.html) | Evaluations & Datasets 트랙의 의료 논문 60편을 데이터·평가 종류별 갈래로 정리 |
 
 ## 숫자로 보기
 
@@ -40,6 +42,8 @@ NeurIPS 2026 채택 논문 9,094편을 분야·주제로 나누고, 의료 QA·�
 | [`REPORT.md`](REPORT.md) | 상세판: 분야·트렌드 표, 관심 분야별 연구 흐름, 216편·의료 QA 벤치마크 논문 목록과 성능 표, 연구 제안 |
 | [`HIGHLIGHTS.md`](HIGHLIGHTS.md) | 학회 전체 Oral·Spotlight 405편, 분야별 |
 | `interests.html`, `explorer.html`, `medical_qa.html`, `opsd.html`, `med_datasets.html` | 위 웹 페이지의 원본 |
+| `trends.html`, `trends/` | 학회 연구 동향 페이지와 그 데이터 (학회·연도별 JSON) |
+| `data/venues/` | 학회·연도별 정규화 논문 표 (저자별 소속, 정규화된 기관; gzip JSON) |
 | `data/` | 모든 집계와 분류 결과 (JSON·CSV). 파일별 설명은 REPORT.md 끝에 있다 |
 | `scripts/` | 데이터 수집·분류·집계·페이지 생성 코드 |
 
@@ -55,6 +59,8 @@ NeurIPS 2026 채택 논문 9,094편을 분야·주제로 나누고, 의료 QA·�
 ```bash
 bash scripts/fetch.sh && python3 scripts/decisions.py && python3 scripts/topic_trends.py && python3 scripts/highlights.py && python3 scripts/areas.py
 python3 scripts/build.py && python3 scripts/explorer.py && python3 scripts/branchmap.py
+for v in neurips icml iclr acl emnlp; do for y in 2025 2026; do python3 scripts/venues/fetch.py $v $y; done; done
+python3 scripts/venues/build.py
 ```
 
 LLM 판독 단계의 결과는 `data/`에 저장돼 있어, 위 명령만으로 페이지와 문서를 다시 만들 수 있다. 의료 QA 벤치마크 본문 검색은 `scripts/medqa_bench/`에 따로 있다.
