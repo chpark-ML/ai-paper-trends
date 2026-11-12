@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>학회 연구 동향</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Same tokens as explorer.html. Layout: one column of cards — filters, trend table, institution ranking, coverage. */
+:root {
+  --bg: #f4f6f7; --surface: #ffffff; --line: #dce2e5; --ink: #12191d; --ink-2: #47545b; --ink-3: #7a868c;
+  --accent: #0b6b74; --accent-soft: #e1f0f1; --code: #edf1f3; --hl: #12191d;
+  --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, "IBM Plex Sans KR", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #101518; --surface: #171e22; --line: #2a343a; --ink: #edf2f4; --ink-2: #b4c0c6; --ink-3: #85929a; --accent: #5cc4cd; --accent-soft: #14353a; --code: #212a30; --hl: #edf2f4; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #101518; --surface: #171e22; --line: #2a343a; --ink: #edf2f4; --ink-2: #b4c0c6; --ink-3: #85929a; --accent: #5cc4cd; --accent-soft: #14353a; --code: #212a30; --hl: #edf2f4; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); padding: 0 16px; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+header.top, main { max-width: 1080px; margin: 0 auto; }
+header.top { padding-block: 24px 8px; display: flex; flex-direction: column; gap: 10px; }
+h1 { margin: 0; font-size: clamp(22px, 3.4vw, 30px); line-height: 1.3; text-wrap: balance; }
+h2 { margin: 0 0 10px; font-size: 17px; }
+.sub { color: var(--ink-2); max-width: 80ch; margin: 0; }
+.nav { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; }
+main { display: flex; flex-direction: column; gap: 14px; padding-bottom: 60px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.lbl { font-size: 13px; color: var(--ink-3); margin: 10px 0 6px; }
+.lbl:first-of-type { margin-top: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 13px var(--f-body); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink-2); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: 600; }
+.chip .x { color: var(--ink-3); margin-left: 4px; }
+input[type="search"] { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+.topics { max-height: 220px; overflow-y: auto; margin-top: 6px; border: 1px solid var(--line); border-radius: 8px; padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 13px var(--f-body); padding: 4px 10px; border: 0; background: var(--bg); color: var(--ink-2); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#status { margin: 0; color: var(--ink-2); font-size: 14px; }
+.note { color: var(--ink-3); font-size: 13px; margin: 6px 0 0; }
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 14px; min-width: 100%; }
+th, td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--ink-3); font-weight: 500; font-size: 13px; }
+td small { color: var(--ink-3); }
+ol.rank { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+ol.rank > li { border-bottom: 1px solid var(--line); }
+ol.rank summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 2.4em minmax(0, 1fr) auto; gap: 8px; padding: 7px 2px; align-items: baseline; }
+ol.rank summary::-webkit-details-marker { display: none; }
+.rk { color: var(--ink-3); font: 12px var(--f-mono); }
+.nm { overflow-wrap: anywhere; }
+.nm .raw { font-size: 11px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 6px; }
+.ct { font: 13px var(--f-mono); color: var(--ink); }
+.br { grid-column: 2 / 4; font-size: 12.5px; color: var(--ink-3); }
+.papers { margin: 0 0 10px 2.4em; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; }
+.papers li { overflow-wrap: anywhere; }
+.papers .meta { color: var(--ink-3); font-size: 12.5px; }
+.more { margin-top: 10px; font: 13px var(--f-body); padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); cursor: pointer; }
+.err { color: #b3261e; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>학회 연구 동향 — 키워드로 본 기관</h1>
+  <p class="sub" id="lead">불러오는 중…</p>
+  <nav class="nav" aria-label="다른 페이지">
+    <a href="interests.html">관심 분야 리포트</a><a href="explorer.html">NeurIPS 2026 논문 탐색기</a>
+    <a href="medical_qa.html">Medical QA 연구 지도</a><a href="opsd.html">On-policy·Self-distillation 연구 지도</a>
+    <a href="med_datasets.html">데이터셋 트랙 의료 논문</a>
+  </nav>
+</header>
+<main>
+  <section class="card" aria-label="필터">
+    <h2>필터</h2>
+    <div class="lbl">학회·연도</div>
+    <div class="chips" id="sets"></div>
+    <div class="lbl">키워드 주제</div>
+    <div class="row"><div class="chips" id="picked"></div>
+      <span class="seg" role="group" aria-label="키워드 결합"><button type="button" data-op="and">모두 해당 (AND)</button><button type="button" data-op="or">하나라도 (OR)</button></span></div>
+    <input type="search" id="kwq" placeholder="키워드 주제 찾기 (예: Medical, RAG, agent)" aria-label="키워드 주제 찾기" style="margin-top:8px">
+    <div class="topics" id="topics"></div>
+    <div class="lbl">검색</div>
+    <input type="search" id="q" placeholder="제목·기관 이름 일부 (대소문자 무시)" aria-label="제목·기관 검색">
+  </section>
+  <p id="status" role="status"></p>
+  <section class="card"><h2>학회·연도별 편수</h2><div class="tw"><table id="trend"></table></div>
+    <p class="note">괄호 안은 그 학회·연도 main 논문 전체 대비 비율. 키워드는 제목+초록에 정규식으로 붙였다.</p></section>
+  <section class="card"><h2>기관 순위</h2><ol class="rank" id="rank"></ol><div id="morewrap"></div>
+    <p class="note">한 논문은 저자 중 한 명이라도 그 기관이면 한 번 센다. <span class="raw" style="border:1px solid var(--line);border-radius:4px;padding:0 4px">원문</span> 표시는 별칭 표로 정규화하지 못한 소속 원문이다.</p></section>
+  <section class="card"><h2>소속 확보율</h2><div class="tw"><table id="cov"></table></div>
+    <p class="note">기관을 하나 이상 얻은 논문의 비율. ACL·EMNLP는 Anthology에 소속이 비어 있는 저자가 많다.</p></section>
+</main>
+<script>
+const VN = {neurips: 'NeurIPS', icml: 'ICML', iclr: 'ICLR', acl: 'ACL', emnlp: 'EMNLP'};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const key = s => s.venue + s.year, label = s => (VN[s.venue] || s.venue) + ' ' + s.year;
+let IDX = null, cache = {}, st = {sets: new Set(), topics: [], op: 'and', q: '', shown: 50}, kwFilter = '';
+
+function readHash() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get('v')) st.sets = new Set(h.get('v').split(',').filter(k => IDX.sets.some(s => key(s) === k)));
+  if (h.get('k')) st.topics = h.get('k').split(',').map(Number).filter(i => i >= 0 && i < IDX.topics.length);
+  if (h.get('op') === 'or') st.op = 'or';
+  if (h.get('q')) st.q = h.get('q');
+}
+function writeHash() {
+  const h = new URLSearchParams();
+  if (st.sets.size !== IDX.sets.length) h.set('v', [...st.sets].join(','));
+  if (st.topics.length) h.set('k', st.topics.join(','));
+  if (st.op === 'or') h.set('op', 'or');
+  if (st.q) h.set('q', st.q);
+  history.replaceState(null, '', h.toString() ? '#' + h.toString() : location.pathname);
+}
+async function load(s) {
+  const k = key(s);
+  if (!cache[k]) cache[k] = fetch('trends/' + s.file).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .catch(() => ({error: true}));
+  return cache[k];
+}
+function drawControls() {
+  $('#sets').innerHTML = IDX.sets.map(s => `<button type="button" class="chip" data-k="${key(s)}" aria-pressed="${st.sets.has(key(s))}">${label(s)}</button>`).join('');
+  $('#picked').innerHTML = st.topics.length ? st.topics.map(i => `<button type="button" class="chip" aria-pressed="true" data-t="${i}">${esc(IDX.topics[i])}<span class="x" aria-hidden="true">×</span></button>`).join('')
+    : '<span class="note" style="margin:0">고른 키워드 없음 — 전체 논문</span>';
+  const f = kwFilter.toLowerCase();
+  $('#topics').innerHTML = IDX.topics.map((t, i) => [t, i]).filter(([t]) => !f || t.toLowerCase().includes(f))
+    .map(([t, i]) => `<button type="button" class="chip" data-t="${i}" aria-pressed="${st.topics.includes(i)}">${esc(t)}</button>`).join('');
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.op === st.op));
+}
+function match(p, inst) {
+  if (st.topics.length && !(st.op === 'and' ? st.topics.every(t => p[5].includes(t)) : st.topics.some(t => p[5].includes(t)))) return false;
+  if (!st.q) return true;
+  const q = st.q.toLowerCase();
+  return p[0].toLowerCase().includes(q) || p[4].some(i => inst[i][0].toLowerCase().includes(q));
+}
+async function draw() {
+  drawControls(); writeHash();
+  const sel = IDX.sets.filter(s => st.sets.has(key(s)));
+  const data = await Promise.all(sel.map(load));
+  const years = [...new Set(IDX.sets.map(s => s.year))].sort();
+  const venues = [...new Set(IDX.sets.map(s => s.venue))];
+  const cell = {}, inst = new Map(), errs = [];
+  let total = 0, hits = 0;
+  sel.forEach((s, j) => {
+    const d = data[j];
+    if (d.error) { errs.push(label(s)); cell[key(s)] = null; return; }
+    let c = 0;
+    for (const p of d.papers) {
+      if (!match(p, d.inst)) continue;
+      c++;
+      for (const i of p[4]) {
+        const [nm, norm] = d.inst[i], k = nm + (norm ? '' : '\u0000');
+        if (!inst.has(k)) inst.set(k, {nm, norm, n: 0, per: {}, papers: []});
+        const e = inst.get(k); e.n++; e.per[key(s)] = (e.per[key(s)] || 0) + 1; e.papers.push([s, p, d.inst]);
+      }
+    }
+    cell[key(s)] = [c, d.n]; total += d.n; hits += c;
+  });
+  $('#lead').textContent = `NeurIPS·ICML·ICLR·ACL·EMNLP의 main 논문에서 키워드를 고르면 학회·연도별 편수와 그 연구를 낸 기관을 보여 준다. 지금 선택: ${sel.length}개 학회·연도, ${total.toLocaleString('en-US')}편 중 ${hits.toLocaleString('en-US')}편.`;
+  const msgs = [];
+  if (!sel.length) msgs.push('학회·연도를 하나 이상 고르세요.');
+  errs.forEach(e => msgs.push(`<span class="err">${e} 데이터를 불러오지 못했다.</span>`));
+  if (sel.length && !hits && errs.length < sel.length) msgs.push('조건에 맞는 논문이 없다. 키워드를 줄이거나 OR로 바꿔 보세요.');
+  $('#status').innerHTML = msgs.join(' ');
+  $('#trend').innerHTML = `<thead><tr><th>학회</th>${years.map(y => `<th>${y}</th>`).join('')}</tr></thead><tbody>` + venues.map(v =>
+    `<tr><td>${VN[v] || v}</td>${years.map(y => { const c = cell[v + y];
+      if (!IDX.sets.some(s => key(s) === v + y)) return '<td><small>자료 없음</small></td>';
+      if (c === undefined) return '<td><small>—</small></td>';
+      if (c === null) return '<td class="err">불러오지 못함</td>';
+      return `<td>${c[0].toLocaleString('en-US')} <small>(${(c[0] / c[1] * 100).toFixed(1)}%)</small></td>`; }).join('')}</tr>`).join('') + '</tbody>';
+  const ranked = [...inst.values()].sort((a, b) => b.n - a.n || a.nm.localeCompare(b.nm));
+  $('#rank').innerHTML = ranked.slice(0, st.shown).map((e, i) => `<li><details data-i="${i}"><summary><span class="rk">${i + 1}</span>
+    <span class="nm">${esc(e.nm)}${e.norm ? '' : '<span class="raw">원문</span>'}</span><span class="ct">${e.n}</span>
+    <span class="br">${sel.filter(s => e.per[key(s)]).map(s => `${label(s)} ${e.per[key(s)]}`).join(' · ')}</span></summary></details></li>`).join('');
+  document.querySelectorAll('#rank details').forEach(d => d.addEventListener('toggle', () => {
+    if (!d.open || d.querySelector('.papers')) return;
+    const e = ranked[+d.dataset.i];
+    d.insertAdjacentHTML('beforeend', '<ul class="papers">' + e.papers.map(([s, p, I]) => `<li><a href="${esc(p[1])}" target="_blank" rel="noopener">${esc(p[0])}</a>
+      <div class="meta">${label(s)}${p[2] && p[2] !== 'Main' ? ' · ' + esc(p[2]) : ''}${p[3] ? ' · ' + p[3] : ''} — ${p[4].map(i => esc(I[i][0])).join(', ')}</div></li>`).join('') + '</ul>');
+  }));
+  $('#morewrap').innerHTML = ranked.length > st.shown ? `<button type="button" class="more" id="more">더 보기 (${ranked.length - st.shown}개 기관 더)</button>` : '';
+  if ($('#more')) $('#more').onclick = () => { st.shown += 50; draw(); };
+  $('#cov').innerHTML = '<thead><tr><th>학회·연도</th><th>기관 확보</th><th>전체</th><th>비율</th></tr></thead><tbody>' + sel.map((s, j) => {
+    const d = data[j]; if (d.error) return `<tr><td>${label(s)}</td><td colspan="3" class="err">불러오지 못함</td></tr>`;
+    return `<tr><td>${label(s)}</td><td>${d.covered.toLocaleString('en-US')}</td><td>${d.n.toLocaleString('en-US')}</td><td>${(d.covered / d.n * 100).toFixed(1)}%</td></tr>`;
+  }).join('') + '</tbody>';
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.k) { const k = b.dataset.k; st.sets.has(k) ? st.sets.delete(k) : st.sets.add(k); }
+  else if (b.dataset.t !== undefined) { const t = +b.dataset.t; st.topics = st.topics.includes(t) ? st.topics.filter(x => x !== t) : [...st.topics, t]; }
+  else if (b.dataset.op) st.op = b.dataset.op;
+  else return;
+  st.shown = 50; draw();
+});
+let timer;
+$('#q').addEventListener('input', e => { clearTimeout(timer); timer = setTimeout(() => { st.q = e.target.value.trim(); st.shown = 50; draw(); }, 200); });
+$('#kwq').addEventListener('input', e => { kwFilter = e.target.value; drawControls(); });
+fetch('trends/index.json').then(r => r.json()).then(j => {
+  IDX = j; st.sets = new Set(IDX.sets.map(key)); readHash(); $('#q').value = st.q; draw();
+}).catch(() => { $('#lead').innerHTML = '<span class="err">trends/index.json을 불러오지 못했다. 로컬에서는 python3 -m http.server로 띄워야 한다.</span>'; });
+</script>
+</body>
+</html>
