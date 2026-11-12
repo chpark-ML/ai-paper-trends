@@ -14,7 +14,13 @@ ANTHOLOGY_VOLUMES = {'acl': ('long', 'short'), 'emnlp': ('main',)}
 
 
 def _clean(s):
-    return ' '.join(html.unescape(s or '').split())
+    s = s or ''
+    for _ in range(4):  # some *.cc strings are escaped two or three times (&amp;#x27;, &amp;amp;amp;)
+        u = html.unescape(s)
+        if u == s:
+            break
+        s = u
+    return ' '.join(s.split())
 
 
 def _pid(url):

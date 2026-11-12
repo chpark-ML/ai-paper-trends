@@ -157,3 +157,38 @@ def test_city_names_and_hongkong_spelling(affil, expected):
 ])
 def test_department_rule_keeps_real_institutions(affil, expected):
     assert canon(affil) == expected
+
+
+# Final review: "X University of Y" / embedded-name wrong merges and hospital rule
+@pytest.mark.parametrize('affil, expected', [
+    ('City University of Hong Kong', ['City University of Hong Kong']),
+    ('City University of Hong Kong (Dongguan)', ['City University of Hong Kong']),
+    ('The University of Hong Kong', ['University of Hong Kong']),
+    ('Zhejiang University', ['Zhejiang University']),
+    ('Allen Institute for AI', ['Allen Institute for AI']), ('AI2', ['Allen Institute for AI']),
+    ('Swiss Federal Institute of Technology in Lausanne', ['EPFL']),
+    ('Seoul National University', ['Seoul National University']),
+])
+def test_canon_after_final_review(affil, expected):
+    assert names(affil) == expected
+
+
+@pytest.mark.parametrize('affil, wrong', [
+    ('City University of Hong Kong', 'University of Hong Kong'),
+    ('The Education University of Hong Kong', 'University of Hong Kong'),
+    ('Open University of Hong Kong', 'University of Hong Kong'),
+    ('Zhejiang University of Technology', 'Zhejiang University'),
+    ('Seoul National University of Science and Technology', 'Seoul National University'),
+    ('National Taiwan University of Science and Technology', 'National Taiwan University'),
+    ('Shandong University of Finance and Economics', 'Shandong University'),
+    ('Sichuan University of Science and Engineering', 'Sichuan University'),
+    ('Allen Institute for Brain Science', 'Allen Institute for AI'),
+    ('National Tsinghua University', 'Tsinghua University'),
+    ('City University of Macau', 'University of Macau'),
+    ('Samsung Medical Center', 'Samsung'),
+    ('Swiss Federal Institute of Technology in Lausanne', 'ETH Zurich'),
+    ('Johns Hopkins Hospital', 'Johns Hopkins University'),
+    ('Yale New Haven Hospital', 'Yale University'),
+])
+def test_wrong_merges_from_final_review(affil, wrong):
+    assert wrong not in names(affil)

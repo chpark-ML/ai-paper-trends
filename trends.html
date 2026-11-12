@@ -11,14 +11,14 @@
 /* Same tokens as explorer.html. Layout: one column of cards — filters, trend table, institution ranking, coverage. */
 :root {
   --bg: #f4f6f7; --surface: #ffffff; --line: #dce2e5; --ink: #12191d; --ink-2: #47545b; --ink-3: #7a868c;
-  --accent: #0b6b74; --accent-soft: #e1f0f1; --code: #edf1f3; --hl: #12191d;
+  --accent: #0b6b74; --accent-soft: #e1f0f1; --code: #edf1f3; --hl: #12191d; --err: #b3261e;
   --f-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, Menlo, "IBM Plex Sans KR", monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --bg: #101518; --surface: #171e22; --line: #2a343a; --ink: #edf2f4; --ink-2: #b4c0c6; --ink-3: #85929a; --accent: #5cc4cd; --accent-soft: #14353a; --code: #212a30; --hl: #edf2f4; color-scheme: dark; }
+  :root:not([data-theme="light"]) { --bg: #101518; --surface: #171e22; --line: #2a343a; --ink: #edf2f4; --ink-2: #b4c0c6; --ink-3: #85929a; --accent: #5cc4cd; --accent-soft: #14353a; --code: #212a30; --hl: #edf2f4; --err: #ff8a80; color-scheme: dark; }
 }
-:root[data-theme="dark"] { --bg: #101518; --surface: #171e22; --line: #2a343a; --ink: #edf2f4; --ink-2: #b4c0c6; --ink-3: #85929a; --accent: #5cc4cd; --accent-soft: #14353a; --code: #212a30; --hl: #edf2f4; color-scheme: dark; }
+:root[data-theme="dark"] { --bg: #101518; --surface: #171e22; --line: #2a343a; --ink: #edf2f4; --ink-2: #b4c0c6; --ink-3: #85929a; --accent: #5cc4cd; --accent-soft: #14353a; --code: #212a30; --hl: #edf2f4; --err: #ff8a80; color-scheme: dark; }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); padding: 0 16px; }
@@ -65,7 +65,7 @@ ol.rank summary::-webkit-details-marker { display: none; }
 .papers li { overflow-wrap: anywhere; }
 .papers .meta { color: var(--ink-3); font-size: 12.5px; }
 .more { margin-top: 10px; font: 13px var(--f-body); padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); cursor: pointer; }
-.err { color: #b3261e; }
+.err { color: var(--err); }
 </style>
 </head>
 <body>
@@ -104,7 +104,7 @@ const VN = {neurips: 'NeurIPS', icml: 'ICML', iclr: 'ICLR', acl: 'ACL', emnlp: '
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 const key = s => s.venue + s.year, label = s => (VN[s.venue] || s.venue) + ' ' + s.year;
-let IDX = null, cache = {}, st = {sets: new Set(), topics: [], op: 'and', q: '', shown: 50}, kwFilter = '';
+let IDX = null, cache = {}, st = {sets: new Set(), topics: [], op: 'and', q: '', shown: 50}, kwFilter = '', gen = 0;
 
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
@@ -144,8 +144,10 @@ function match(p, inst) {
 }
 async function draw() {
   drawControls(); writeHash();
+  const g = ++gen;  // a slower earlier draw must not paint over a newer selection
   const sel = IDX.sets.filter(s => st.sets.has(key(s)));
   const data = await Promise.all(sel.map(load));
+  if (g !== gen) return;
   const years = [...new Set(IDX.sets.map(s => s.year))].sort();
   const venues = [...new Set(IDX.sets.map(s => s.venue))];
   const cell = {}, inst = new Map(), errs = [];

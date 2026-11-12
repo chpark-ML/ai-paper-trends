@@ -1,6 +1,6 @@
 """Build normalized venue tables and the trends page data from data/raw/venues/.
 
-Usage: python3 scripts/venues/build.py
+Usage: python3 scripts/venues/build.py   (from the repo root; paths are relative)
 Writes data/venues/<venue><year>.json.gz (normalized table, no abstracts) and trends/<venue><year>.json + trends/index.json
 (page data), then prints track counts, institution rankings and possible split institutions for review."""
 import collections
@@ -71,6 +71,11 @@ def load_rows(venue, year):
                     json.loads(op.read_text()) if op.exists() else [], venue, year)
 
 
+def missing_sets(previous, found):
+    """Venue-years listed in the existing trends/index.json that have no raw download now."""
+    return [(s['venue'], s['year']) for s in previous if (s['venue'], s['year']) not in found]
+
+
 def _sets():
     found = {(m.group(1), int(m.group(2))) for f in RAW.glob('*') for m in [re.match(r'([a-z]+)(\d{4})', f.name)] if m}
     return sorted(found, key=lambda s: (ORDER.index(s[0]) if s[0] in ORDER else 99, s[1]))
@@ -79,8 +84,14 @@ def _sets():
 def main():
     TABLE.mkdir(parents=True, exist_ok=True)
     PAGE.mkdir(exist_ok=True)
+    found = set(_sets())
+    idx = PAGE / 'index.json'
+    lost = missing_sets(json.loads(idx.read_text())['sets'], found) if idx.exists() else []
+    if lost:
+        sys.exit('Refusing to drop venue-years already on the page; fetch them first (run from the repo root):\n'
+                 + '\n'.join(f'  python3 scripts/venues/fetch.py {v} {y}' for v, y in lost))
     kept = {}
-    for v, y in _sets():
+    for v, y in sorted(found, key=lambda s: (ORDER.index(s[0]) if s[0] in ORDER else 99, s[1])):
         rows = load_rows(v, y)
         tracks = collections.Counter(r['track'] for r in rows)
         kept[(v, y)] = [r for r in rows if r['track'] in KEEP_TRACKS]

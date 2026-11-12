@@ -77,3 +77,10 @@ def test_cc_track_variants_seen_in_2025_2026_data():
                                                   'neurips', 2025)}
     assert rows == {'neurips2025-1': 'Evaluations & Datasets', 'neurips2025-2': 'Journal', 'neurips2025-3': 'Journal',
                     'neurips2025-4': 'Journal', 'neurips2025-5': 'Journal', 'neurips2025-6': 'Journal'}
+
+
+def test_cc_unescapes_double_escaped_entities():
+    r = parse_cc([P('1', 'T', authors='Bo O&amp;#x27;Sullivan (Xi&amp;#x27;an Jiaotong University), '
+                                     'Cy Xu (Texas A&amp;amp;amp;M University)')], [], 'neurips', 2026)[0]
+    assert r['authors'] == [{'name': "Bo O'Sullivan", 'affil': "Xi'an Jiaotong University"},
+                            {'name': 'Cy Xu', 'affil': 'Texas A&M University'}]

@@ -33,3 +33,10 @@ def test_unnormalized_display_name():
 def test_normalized_table_drops_abstract():
     t = normalized_table([row('p1', affils=['KAIST'], text='x')])
     assert 'abstract' not in t[0] and t[0]['inst'] == ['KAIST']
+
+
+def test_missing_sets_reports_sets_without_raw_files():
+    from venues.build import missing_sets
+    previous = [{'venue': 'acl', 'year': 2025}, {'venue': 'icml', 'year': 2026}]
+    assert missing_sets(previous, {('icml', 2026)}) == [('acl', 2025)]
+    assert missing_sets(previous, {('icml', 2026), ('acl', 2025), ('emnlp', 2026)}) == []
