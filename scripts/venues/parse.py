@@ -32,16 +32,19 @@ def _decision(d):
     return None
 
 
+JOURNAL_MARKERS = ('tmlr', 'j2c', 'journal', 'jmlr', 'annals-of-statistics', 'ann-stats', 'projecteuclid')
+
+
 def _track(src):
     s = (src or '').rstrip('/').rsplit('/', 1)[-1]
-    low = s.lower()
+    low = (src or '').lower()
     if s == 'Conference':
         return 'Main'
-    if s == 'Evaluations_and_Datasets_Track':
+    if s in ('Evaluations_and_Datasets_Track', 'Datasets_and_Benchmarks_Track'):
         return 'Evaluations & Datasets'
     if s == 'Position_Paper_Track':
         return 'Position'
-    if 'tmlr' in low or 'j2c' in low or 'journal' in low:
+    if any(m in low for m in JOURNAL_MARKERS):
         return 'Journal'
     if s == 'BlogPosts':
         return 'Blog'

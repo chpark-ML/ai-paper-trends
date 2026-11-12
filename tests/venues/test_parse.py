@@ -64,3 +64,16 @@ def test_anthology_emnlp_uses_main_volume():
     xml = '<collection id="2026.emnlp"><volume id="main"><paper id="1"><title>M</title></paper></volume>' \
           '<volume id="industry"><paper id="1"><title>I</title></paper></volume></collection>'
     assert [r['id'] for r in parse_anthology(xml, 'emnlp', 2026)] == ['2026.emnlp-main.1']
+
+
+def test_cc_track_variants_seen_in_2025_2026_data():
+    srcs = {'1': 'https://openreview.net/group?id=NeurIPS.cc/2025/Datasets_and_Benchmarks_Track',
+            '2': 'https://api.github.com/repos/JmlrOrg/v25',
+            '3': 'journal-track/NeurIPS_2026-Posters_JMLR.xlsx',
+            '4': 'https://projecteuclid.org/journals/annals-of-statistics/volume-53/issue-4',
+            '5': 'ANN-STATS-2026',
+            '6': 'https://imstat.org/journals-and-publications/annals-of-statistics/annals-of-statistics-future-papers/'}
+    rows = {r['id']: r['track'] for r in parse_cc([P(k, k) for k in srcs], [O(k, 'Accept (poster)', s) for k, s in srcs.items()],
+                                                  'neurips', 2025)}
+    assert rows == {'neurips2025-1': 'Evaluations & Datasets', 'neurips2025-2': 'Journal', 'neurips2025-3': 'Journal',
+                    'neurips2025-4': 'Journal', 'neurips2025-5': 'Journal', 'neurips2025-6': 'Journal'}
